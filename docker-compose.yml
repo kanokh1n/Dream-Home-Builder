@@ -2,6 +2,7 @@ version: '3.8'
 
 services:
   nginx:
+    container_name: dhb_nginx
     image: nginx:latest
     volumes:
       - ./:/var/www
@@ -10,12 +11,25 @@ services:
       - "8876:80"
     depends_on:
       - app
-    container_name: dhb_nginx
 
   app:
+    container_name: dhb_app
     build:
       context: .
       dockerfile: _docker/app/Dockerfile
     volumes:
       - ./:/var/www
-    container_name: dhb_app
+
+  db:
+    container_name: dhb_db
+    image: postgres:13
+    restart: always
+    volumes:
+      - ./tmp/db:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: dhb
+      POSTGRES_USER: dhb_user
+      POSTGRES_PASSWORD: dhb_pass
+    ports:
+      - "5432:5432"
+    command: postgres -c 'fsync=off'
